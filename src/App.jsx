@@ -195,9 +195,9 @@ function Sparkline() {
 
 function CameraCard({ cam }) {
   const alertBgMap = {
-    safe: "background: var(--safe); color: #000;",
-    warn: "background: var(--warn); color: #000;",
-    danger: "background: var(--danger); color: white;",
+    safe: { background: "var(--safe)", color: "#000" },
+    warn: { background: "var(--warn)", color: "#000" },
+    danger: { background: "var(--danger)", color: "white" },
   };
   const AlertIcon = cam.alertColor === "safe" ? CheckCircle2 : cam.alertColor === "warn" ? AlertCircle : AlertTriangle;
 
