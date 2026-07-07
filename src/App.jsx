@@ -194,6 +194,13 @@ function Sparkline() {
 }
 
 function CameraCard({ cam }) {
+  const alertBgMap = {
+    safe: "background: var(--safe); color: #000;",
+    warn: "background: var(--warn); color: #000;",
+    danger: "background: var(--danger); color: white;",
+  };
+  const AlertIcon = cam.alertColor === "safe" ? CheckCircle2 : cam.alertColor === "warn" ? AlertCircle : AlertTriangle;
+
   return (
     <div className="camera-card lift">
       <div className="camera-feed scanlines grid-overlay vignette">
@@ -207,39 +214,39 @@ function CameraCard({ cam }) {
         {cam.blurs.map((b, i) => (
           <div key={i} className="blur-region" style={{ top: `${b.top}%`, left: `${b.left}%`, width: `${b.w}%`, height: `${b.h}%` }} />
         ))}
-        <div className="absolute top-2 left-2 right-2 flex justify-between z-10">
-          <div className="bg-black/75 backdrop-blur-sm px-2 py-0.5 rounded mono text-[9px] flex items-center gap-1.5">
+        <div style={{ position: "absolute", top: 8, left: 8, right: 8, display: "flex", justifyContent: "space-between", zIndex: 10 }}>
+          <div style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(4px)", padding: "2px 8px", borderRadius: 2, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, display: "flex", alignItems: "center", gap: 6 }}>
             <span className="rec-dot" />
-            <span className="font-bold">CAM-{cam.id}</span>
-            <span className="text-[var(--muted)]">·</span>
+            <span style={{ fontWeight: 700 }}>CAM-{cam.id}</span>
+            <span style={{ color: "var(--muted)" }}>·</span>
             <span>{cam.label}</span>
           </div>
-          <div className="bg-black/75 backdrop-blur-sm px-2 py-0.5 rounded mono text-[9px] text-[var(--muted)]">1920×1080 · 30fps</div>
+          <div style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(4px)", padding: "2px 8px", borderRadius: 2, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "var(--muted)" }}>1920×1080 · 30fps</div>
         </div>
-        <div className="absolute bottom-2 left-2 right-2 flex justify-between items-end z-10">
-          <div className="bg-black/75 backdrop-blur-sm px-2 py-0.5 rounded mono text-[9px]">
-            <span className="text-[var(--muted)]">EDGE</span>
-            <span className="text-[var(--accent)] ml-1 font-bold">{cam.latency}ms</span>
-            <span className="text-[var(--muted)] mx-1">·</span>
-            <span className="text-[var(--muted)]">{cam.standards}</span>
+        <div style={{ position: "absolute", bottom: 8, left: 8, right: 8, display: "flex", justifyContent: "space-between", alignItems: "flex-end", zIndex: 10 }}>
+          <div style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(4px)", padding: "2px 8px", borderRadius: 2, fontFamily: "'JetBrains Mono', monospace", fontSize: 9 }}>
+            <span style={{ color: "var(--muted)" }}>EDGE</span>
+            <span style={{ color: "var(--accent)", marginLeft: 4, fontWeight: 700 }}>{cam.latency}ms</span>
+            <span style={{ color: "var(--muted)", margin: "0 4px" }}>·</span>
+            <span style={{ color: "var(--muted)" }}>{cam.standards}</span>
           </div>
-          <div className={`px-2 py-0.5 rounded mono text-[9px] font-bold flex items-center gap-1 ${cam.alertColor === "safe" ? "bg-[var(--safe)] text-black" : cam.alertColor === "warn" ? "bg-[var(--warn)] text-black" : "bg-[var(--danger)] text-white"}`}>
-            {cam.alertColor === "safe" ? <CheckCircle2 className="w-3 h-3" /> : cam.alertColor === "warn" ? <AlertCircle className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
+          <div style={{ padding: "2px 8px", borderRadius: 2, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, display: "flex", alignItems: "center", gap: 4, ...alertBgMap[cam.alertColor] }}>
+            <AlertIcon style={{ width: 12, height: 12 }} />
             {cam.alertText}
           </div>
         </div>
       </div>
-      <div className="px-2 py-1.5 flex items-center justify-between bg-[var(--surface-2)] border-t border-[var(--border)]">
-        <div className="flex items-center gap-2 mono text-[9px]">
-          <span className="text-[var(--muted)]">COMPLY</span>
-          <span className={`live-num text-[var(--${cam.alertColor})]`}>{cam.comply}%</span>
+      <div style={{ padding: "6px 8px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--surface-2)", borderTop: "1px solid var(--border)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 9 }}>
+          <span style={{ color: "var(--muted)" }}>COMPLY</span>
+          <span className="live-num" style={{ color: `var(--${cam.alertColor})` }}>{cam.comply}%</span>
         </div>
-        <div className="flex-1 mx-2">
+        <div style={{ flex: 1, margin: "0 8px" }}>
           <div className="gauge-bar">
             <div className="gauge-fill" style={{ width: `${cam.comply}%`, background: cam.alertColor === "danger" ? "linear-gradient(90deg, var(--danger), var(--warn))" : cam.alertColor === "warn" ? "linear-gradient(90deg, var(--warn), var(--accent))" : "linear-gradient(90deg, var(--accent), var(--safe))" }} />
           </div>
         </div>
-        <div className="mono text-[9px] text-[var(--muted)]">{cam.objCount}</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "var(--muted)" }}>{cam.objCount}</div>
       </div>
     </div>
   );
@@ -247,31 +254,31 @@ function CameraCard({ cam }) {
 
 function ViolationEntry({ v, selected, onClick }) {
   const borderClass = v.sev === "sev1" ? "" : v.sev === "sev2" ? "warn" : "info";
-  const statusIcon = v.statusColor === "safe" ? <CheckCircle2 className="w-3 h-3 text-[var(--safe)]" />
-    : v.statusColor === "danger" ? <AlertTriangle className="w-3 h-3 text-[var(--danger)]" />
-    : v.statusColor === "warn" ? <Clock className="w-3 h-3 text-[var(--warn)]" />
-    : <Loader className="w-3 h-3 text-[var(--accent)] spin" />;
+  const statusIcon = v.statusColor === "safe" ? <CheckCircle2 style={{ width: 12, height: 12, color: "var(--safe)" }} />
+    : v.statusColor === "danger" ? <AlertTriangle style={{ width: 12, height: 12, color: "var(--danger)" }} />
+    : v.statusColor === "warn" ? <Clock style={{ width: 12, height: 12, color: "var(--warn)" }} />
+    : <Loader style={{ width: 12, height: 12, color: "var(--accent)" }} className="spin" />;
   return (
     <div className={`violation-entry ${borderClass} ${selected ? "selected" : ""}`} onClick={onClick}>
-      <div className="flex items-start justify-between mb-1">
-        <div className="flex items-center gap-1.5">
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <span className={`severity ${v.sev}`}>{v.sevLabel}</span>
-          <span className="mono text-[10px] font-bold text-[var(--fg)]">{v.title}</span>
+          <span className="mono" style={{ fontSize: 10, fontWeight: 700, color: "var(--fg)" }}>{v.title}</span>
         </div>
-        <span className="mono text-[9px] text-[var(--muted)]">{v.time}</span>
+        <span className="mono" style={{ fontSize: 9, color: "var(--muted)" }}>{v.time}</span>
       </div>
-      <div className="mono text-[9px] text-[var(--muted)] mb-1.5">{v.cam}</div>
-      <div className="flex items-center gap-1 flex-wrap mb-1.5">
+      <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 6 }}>{v.cam}</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap", marginBottom: 6 }}>
         {v.standards.map((s, i) => (
-          <span key={i} className="pdf-chip loaded"><FileText className="w-2.5 h-2.5" />{s}</span>
+          <span key={i} className="pdf-chip loaded"><FileText style={{ width: 10, height: 10 }} />{s}</span>
         ))}
       </div>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5 mono text-[9px]">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 9 }}>
           {statusIcon}
           <span style={{ color: `var(--${v.statusColor})` }}>{v.status}</span>
         </div>
-        <span className="mono text-[9px] text-[var(--muted)]">{v.id}</span>
+        <span className="mono" style={{ fontSize: 9, color: "var(--muted)" }}>{v.id}</span>
       </div>
     </div>
   );
@@ -291,58 +298,58 @@ function PathToGreen({ violation }) {
   const steps = PTG_STEPS[violation.id] || DEFAULT_STEPS;
   const doneCount = steps.filter((s) => s.state === "done").length;
   return (
-    <div className="bg-[var(--surface)] border border-[var(--border)] rounded">
-      <div className="px-3 py-2.5 border-b border-[var(--border)] flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <Route className="w-4 h-4 text-[var(--accent)]" />
-          <h3 className="mono text-[10px] font-bold tracking-wider">PATH-TO-GREEN · REMEDIATION REPORT</h3>
-          <span className="mono text-[9px] text-[var(--muted)]">[ AUTO-GENERATED ]</span>
+    <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 4 }}>
+      <div style={{ padding: "10px 12px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Route style={{ width: 16, height: 16, color: "var(--accent)" }} />
+          <h3 className="mono" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em" }}>PATH-TO-GREEN · REMEDIATION REPORT</h3>
+          <span className="mono" style={{ fontSize: 9, color: "var(--muted)" }}>[ AUTO-GENERATED ]</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span className={`severity ${violation.sev}`}>{violation.sevLabel}</span>
-          <span className="mono text-[9px] text-[var(--muted)]">{violation.id}</span>
+          <span className="mono" style={{ fontSize: 9, color: "var(--muted)" }}>{violation.id}</span>
           <button className="btn">EXPORT PDF</button>
         </div>
       </div>
-      <div className="p-3 grid grid-cols-12 gap-3">
-        <div className="col-span-12 md:col-span-4 space-y-2">
+      <div style={{ padding: 12, display: "grid", gridTemplateColumns: "1fr 2fr", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div>
-            <div className="mono text-[9px] text-[var(--muted)] mb-1">VIOLATION</div>
-            <div className="text-sm font-semibold text-[var(--danger)]">{violation.title}</div>
-            <div className="mono text-[10px] text-[var(--muted)] mt-1">{violation.cam}</div>
+            <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 4 }}>VIOLATION</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--danger)" }}>{violation.title}</div>
+            <div className="mono" style={{ fontSize: 10, color: "var(--muted)", marginTop: 4 }}>{violation.cam}</div>
           </div>
           <div>
-            <div className="mono text-[9px] text-[var(--muted)] mb-1">DETECTED</div>
-            <div className="mono text-[10px]">2024-07-03 {violation.time}</div>
+            <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 4 }}>DETECTED</div>
+            <div className="mono" style={{ fontSize: 10 }}>2024-07-03 {violation.time}</div>
           </div>
           <div>
-            <div className="mono text-[9px] text-[var(--muted)] mb-1">STANDARDS CITED</div>
-            <div className="flex flex-wrap gap-1">
+            <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 4 }}>STANDARDS CITED</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
               {violation.standards.map((s, i) => (
-                <span key={i} className="pdf-chip loaded"><FileText className="w-2.5 h-2.5" />{s}</span>
+                <span key={i} className="pdf-chip loaded"><FileText style={{ width: 10, height: 10 }} />{s}</span>
               ))}
             </div>
           </div>
           <div>
-            <div className="mono text-[9px] text-[var(--muted)] mb-1">ROOT CAUSE</div>
-            <div className="text-[11px] leading-relaxed text-[var(--fg)]">{violation.rootCause}</div>
+            <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 4 }}>ROOT CAUSE</div>
+            <div style={{ fontSize: 11, lineHeight: 1.6, color: "var(--fg)" }}>{violation.rootCause}</div>
           </div>
         </div>
-        <div className="col-span-12 md:col-span-8">
-          <div className="flex items-center justify-between mb-2">
-            <span className="mono text-[9px] text-[var(--muted)]">REMEDIATION STEPS</span>
-            <div className="flex items-center gap-2 mono text-[9px]">
-              <span className="text-[var(--muted)]">PROGRESS</span>
-              <span className="live-num text-[var(--accent)]">{doneCount}/{steps.length}</span>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+            <span className="mono" style={{ fontSize: 9, color: "var(--muted)" }}>REMEDIATION STEPS</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 9 }}>
+              <span style={{ color: "var(--muted)" }}>PROGRESS</span>
+              <span className="live-num" style={{ color: "var(--accent)" }}>{doneCount}/{steps.length}</span>
             </div>
           </div>
-          <div className="space-y-1.5">
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {steps.map((s, i) => (
               <div key={i} className={`ptg-step ${s.state === "done" ? "done" : s.state === "pending" ? "pending" : ""}`}>
-                <div className="ptg-step-num">{s.state === "done" ? <Check className="w-3 h-3" /> : i + 1}</div>
-                <div className="flex-1">
-                  <div className="text-[11px] font-medium">{s.text}</div>
-                  <div className="mono text-[9px] text-[var(--muted)] mt-0.5">{s.meta}</div>
+                <div className="ptg-step-num">{s.state === "done" ? <Check style={{ width: 12, height: 12 }} /> : i + 1}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 11, fontWeight: 500 }}>{s.text}</div>
+                  <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginTop: 2 }}>{s.meta}</div>
                 </div>
               </div>
             ))}
@@ -400,41 +407,41 @@ function AgentPanel() {
   };
 
   return (
-    <div className="bg-[var(--surface)] border border-[var(--border)] rounded">
-      <div className="px-3 py-2.5 border-b border-[var(--border)] flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-sm bg-gradient-to-br from-[var(--info)] to-[var(--accent)] flex items-center justify-center">
-            <BrainCircuit className="w-3 h-3 text-black" />
+    <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 4 }}>
+      <div style={{ padding: "10px 12px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 20, height: 20, borderRadius: 2, background: "linear-gradient(135deg, var(--info), var(--accent))", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <BrainCircuit style={{ width: 12, height: 12, color: "#000" }} />
           </div>
-          <h3 className="mono text-[10px] font-bold tracking-wider">CLOUD AGENT</h3>
-          <span className="mono text-[9px] text-[var(--info)]">RAG · GPT-4o</span>
+          <h3 className="mono" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em" }}>CLOUD AGENT</h3>
+          <span className="mono" style={{ fontSize: 9, color: "var(--info)" }}>RAG · GPT-4o</span>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <span className="status-dot" />
-          <span className="mono text-[9px] text-[var(--muted)]">PROCESSING</span>
+          <span className="mono" style={{ fontSize: 9, color: "var(--muted)" }}>PROCESSING</span>
         </div>
       </div>
-      <div className="flex border-b border-[var(--border)]">
+      <div style={{ display: "flex", borderBottom: "1px solid var(--border)" }}>
         {["reasoning", "standards", "devices"].map((t) => (
           <div key={t} className={`tab ${tab === t ? "active" : ""}`} onClick={() => setTab(t)}>{t}</div>
         ))}
       </div>
-      <div ref={streamRef} className="p-3 agent-stream h-[260px] overflow-y-auto">
+      <div ref={streamRef} className="agent-stream" style={{ padding: 12, height: 260, overflowY: "auto" }}>
         {(staticLines || lines).map((l, i) => (
           <div key={i} className="agent-line" style={{ color: l.c }}>
             {l.t && <span style={{ color: "var(--muted)" }}>{"› "}</span>}{l.t}
           </div>
         ))}
       </div>
-      <div className="p-2 border-t border-[var(--border)] flex items-center gap-2">
-        <span className="mono text-[10px] text-[var(--accent)]">›</span>
+      <div style={{ padding: "8px 12px", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 8 }}>
+        <span className="mono" style={{ fontSize: 10, color: "var(--accent)" }}>›</span>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
           type="text"
           placeholder="query agent: e.g. summarize today's violations"
-          className="flex-1 bg-transparent mono text-[11px] outline-none text-[var(--fg)] placeholder:text-[var(--muted-2)]"
+          style={{ flex: 1, background: "transparent", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, border: "none", outline: "none", color: "var(--fg)" }}
         />
         <button className="btn" onClick={send}>SEND</button>
       </div>
@@ -462,29 +469,26 @@ export default function App() {
   }, []);
 
   const selected = VIOLATIONS.find((v) => v.id === selectedId) || VIOLATIONS[0];
-  const sevCounts = { sev1: 0, sev2: 0, sev3: 0 };
-  VIOLATIONS.forEach((v) => sevCounts[v.sev]++);
-  // Keep parity with the reference mock (which shows totals-to-date, not just this list)
   const displayCounts = { sev1: 1, sev2: 3, sev3: 7 };
 
   return (
-    <div className="min-h-screen">
+    <div style={{ minHeight: "100vh" }}>
       {/* TOP BAR */}
-      <header className="top-bar flex items-center px-4 gap-4">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-sm bg-[var(--accent)] flex items-center justify-center relative">
-            <ShieldAlert className="w-5 h-5 text-black" style={{ strokeWidth: 2.5 }} />
-            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[var(--danger)] animate-pulse" />
+      <header className="top-bar" style={{ display: "flex", alignItems: "center", padding: "0 16px", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 2, background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+            <ShieldAlert style={{ width: 20, height: 20, color: "#000", strokeWidth: 2.5 }} />
+            <div style={{ position: "absolute", top: -2, right: -2, width: 8, height: 8, borderRadius: "50%", background: "var(--danger)", animation: "pulse 2s infinite" }} />
           </div>
           <div>
-            <div className="font-bold text-[13px] tracking-wider leading-none">SERENIX<span className="text-[var(--accent)]">.</span>AI</div>
-            <div className="mono text-[9px] text-[var(--muted)] mt-0.5">SAFETY COMPLIANCE INSPECTOR · v0.9.3</div>
+            <div style={{ fontWeight: 700, fontSize: 13, letterSpacing: "0.08em", lineHeight: 1 }}>SERENIX<span style={{ color: "var(--accent)" }}>.</span>AI</div>
+            <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginTop: 2 }}>SAFETY COMPLIANCE INSPECTOR · v0.9.3</div>
           </div>
         </div>
 
-        <div className="h-8 w-px bg-[var(--border)]" />
+        <div style={{ height: 32, width: 1, background: "var(--border)" }} />
 
-        <nav className="flex items-center gap-1">
+        <nav style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <button className="btn active">DASHBOARD</button>
           <button className="btn">INCIDENTS</button>
           <button className="btn">STANDARDS</button>
@@ -492,87 +496,87 @@ export default function App() {
           <button className="btn">REPORTS</button>
         </nav>
 
-        <div className="flex-1" />
+        <div style={{ flex: 1 }} />
 
-        <div className="hidden lg:flex items-center gap-4 mono text-[10px]">
-          <div className="flex items-center gap-1.5">
+        <div style={{ display: "flex", alignItems: "center", gap: 16, fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span className="status-dot" />
-            <span className="text-[var(--muted)]">EDGE</span>
+            <span style={{ color: "var(--muted)" }}>EDGE</span>
             <span className="live-num">4/4</span>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span className="status-dot" />
-            <span className="text-[var(--muted)]">CLOUD</span>
-            <span className="text-[var(--safe)]">LINKED</span>
+            <span style={{ color: "var(--muted)" }}>CLOUD</span>
+            <span style={{ color: "var(--safe)" }}>LINKED</span>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span className="status-dot warn" />
-            <span className="text-[var(--muted)]">QUEUE</span>
-            <span className={`live-num ${queue > 1 ? "text-[var(--warn)]" : "text-[var(--accent)]"}`}>{queue}</span>
+            <span style={{ color: "var(--muted)" }}>QUEUE</span>
+            <span className="live-num" style={{ color: queue > 1 ? "var(--warn)" : "var(--accent)" }}>{queue}</span>
           </div>
         </div>
 
-        <div className="h-8 w-px bg-[var(--border)]" />
+        <div style={{ height: 32, width: 1, background: "var(--border)" }} />
 
-        <div className="flex items-center gap-1">
-          <span className="mono text-[9px] text-[var(--muted)] mr-1">REGION</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <span className="mono" style={{ fontSize: 9, color: "var(--muted)", marginRight: 4 }}>REGION</span>
           {["AMER", "EMEA", "APAC"].map((r) => (
             <button key={r} className={`btn ${region === r ? "active" : ""}`} onClick={() => setRegion(r)}>{r}</button>
           ))}
         </div>
 
-        <div className="h-8 w-px bg-[var(--border)]" />
+        <div style={{ height: 32, width: 1, background: "var(--border)" }} />
 
-        <div className="mono text-[10px] text-right">
-          <div className="text-[var(--fg)]">{clock}</div>
-          <div className="text-[9px] text-[var(--muted)]">UTC · DAY <span className="text-[var(--accent)]">7</span>/10</div>
+        <div className="mono" style={{ fontSize: 10, textAlign: "right" }}>
+          <div style={{ color: "var(--fg)" }}>{clock}</div>
+          <div style={{ fontSize: 9, color: "var(--muted)" }}>UTC · DAY <span style={{ color: "var(--accent)" }}>7</span>/10</div>
         </div>
       </header>
 
       {/* MAIN */}
-      <main className="p-3 grid grid-cols-12 gap-3 max-w-[1800px] mx-auto">
+      <main style={{ padding: 12, display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12, maxWidth: 1800, margin: "0 auto" }}>
         {/* LEFT COLUMN */}
-        <section className="col-span-12 xl:col-span-8 space-y-3">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-3">
-              <h2 className="mono text-[10px] font-bold tracking-wider text-[var(--muted)]">[ 01 ] LIVE FEEDS · EDGE INFERENCE</h2>
-              <span className="mono text-[10px] text-[var(--accent)]">YOLOV8-NANO · ONBOARD</span>
+        <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <h2 className="mono" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "var(--muted)" }}>[ 01 ] LIVE FEEDS · EDGE INFERENCE</h2>
+              <span className="mono" style={{ fontSize: 10, color: "var(--accent)" }}>YOLOV8-NANO · ONBOARD</span>
             </div>
-            <div className="flex items-center gap-4 mono text-[10px]">
-              <div className="flex items-center gap-1.5">
-                <EyeOff className="w-3 h-3 text-[var(--accent)]" />
-                <span className="text-[var(--muted)]">PRIVACY: FACE BLUR</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <EyeOff style={{ width: 12, height: 12, color: "var(--accent)" }} />
+                <span style={{ color: "var(--muted)" }}>PRIVACY: FACE BLUR</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Cpu className="w-3 h-3 text-[var(--accent)]" />
-                <span className="text-[var(--muted)]">AVG LATENCY</span>
-                <span className="live-num text-[var(--accent)]">{latency}ms</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Cpu style={{ width: 12, height: 12, color: "var(--accent)" }} />
+                <span style={{ color: "var(--muted)" }}>AVG LATENCY</span>
+                <span className="live-num" style={{ color: "var(--accent)" }}>{latency}ms</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <HardDrive className="w-3 h-3 text-[var(--accent)]" />
-                <span className="text-[var(--muted)]">QUEUE</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <HardDrive style={{ width: 12, height: 12, color: "var(--accent)" }} />
+                <span style={{ color: "var(--muted)" }}>QUEUE</span>
                 <span className="live-num">{queue}</span>
               </div>
             </div>
           </div>
 
-          <div className="camera-grid grid grid-cols-2 gap-3">
+          <div className="camera-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             {CAMERAS.map((cam) => <CameraCard key={cam.id} cam={cam} />)}
           </div>
 
-          <div className="grid grid-cols-4 gap-2">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8 }}>
             {FACILITIES.map((f) => (
-              <div key={f.name} className="bg-[var(--surface)] border border-[var(--border)] rounded p-2.5">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="mono text-[9px] text-[var(--muted)]">{f.name}</span>
-                  <f.icon className={`w-3 h-3 text-[var(--${f.color})]`} />
+              <div key={f.name} style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 4, padding: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                  <span className="mono" style={{ fontSize: 9, color: "var(--muted)" }}>{f.name}</span>
+                  <f.icon style={{ width: 12, height: 12, color: `var(--${f.color})` }} />
                 </div>
-                <div className="flex items-baseline gap-1">
-                  <span className={`live-num text-lg text-[var(--${f.color})]`}>{f.comply}</span>
-                  <span className="mono text-[9px] text-[var(--muted)]">% COMPLY</span>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                  <span className="live-num" style={{ fontSize: 18, color: `var(--${f.color})` }}>{f.comply}</span>
+                  <span className="mono" style={{ fontSize: 9, color: "var(--muted)" }}>% COMPLY</span>
                 </div>
-                <div className="mt-1.5"><Sparkline /></div>
-                <div className="mono text-[9px] text-[var(--muted)] mt-1">{f.status}</div>
+                <div style={{ marginTop: 6 }}><Sparkline /></div>
+                <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginTop: 4 }}>{f.status}</div>
               </div>
             ))}
           </div>
@@ -581,24 +585,24 @@ export default function App() {
         </section>
 
         {/* RIGHT COLUMN */}
-        <aside className="col-span-12 xl:col-span-4 space-y-3">
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded">
-            <div className="px-3 py-2.5 border-b border-[var(--border)] flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <BellRing className="w-3.5 h-3.5 text-[var(--danger)]" />
-                <h3 className="mono text-[10px] font-bold tracking-wider">INCIDENT FEED</h3>
-                <span className="mono text-[9px] text-[var(--danger)]">[ LIVE ]</span>
+        <aside style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 4 }}>
+            <div style={{ padding: "10px 12px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <BellRing style={{ width: 14, height: 14, color: "var(--danger)" }} />
+                <h3 className="mono" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em" }}>INCIDENT FEED</h3>
+                <span className="mono" style={{ fontSize: 9, color: "var(--danger)" }}>[ LIVE ]</span>
               </div>
-              <div className="flex items-center gap-2 mono text-[9px]">
-                <span className="text-[var(--muted)]">SEV-1</span>
-                <span className="live-num text-[var(--danger)]">{displayCounts.sev1}</span>
-                <span className="text-[var(--muted)] ml-1">SEV-2</span>
-                <span className="live-num text-[var(--warn)]">{displayCounts.sev2}</span>
-                <span className="text-[var(--muted)] ml-1">SEV-3</span>
-                <span className="live-num text-[var(--info)]">{displayCounts.sev3}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 9 }}>
+                <span style={{ color: "var(--muted)" }}>SEV-1</span>
+                <span className="live-num" style={{ color: "var(--danger)" }}>{displayCounts.sev1}</span>
+                <span style={{ color: "var(--muted)", marginLeft: 4 }}>SEV-2</span>
+                <span className="live-num" style={{ color: "var(--warn)" }}>{displayCounts.sev2}</span>
+                <span style={{ color: "var(--muted)", marginLeft: 4 }}>SEV-3</span>
+                <span className="live-num" style={{ color: "var(--info)" }}>{displayCounts.sev3}</span>
               </div>
             </div>
-            <div className="p-2 space-y-1 max-h-[320px] overflow-y-auto">
+            <div style={{ padding: 8, display: "flex", flexDirection: "column", gap: 4, maxHeight: 320, overflowY: "auto" }}>
               {VIOLATIONS.map((v) => (
                 <ViolationEntry key={v.id} v={v} selected={v.id === selectedId} onClick={() => setSelectedId(v.id)} />
               ))}
@@ -610,55 +614,55 @@ export default function App() {
       </main>
 
       {/* FOOTER */}
-      <footer className="border-t border-[var(--border)] bg-[var(--surface)] mt-3">
-        <div className="px-4 py-2 flex items-center gap-6 mono text-[10px] flex-wrap">
-          <div className="flex items-center gap-2">
-            <Cpu className="w-3 h-3 text-[var(--accent)]" />
-            <span className="text-[var(--muted)]">EDGE-PI-01</span>
-            <span className="text-[var(--accent)]">38%</span>
-            <span className="text-[var(--muted)]">CPU</span>
-            <span className="text-[var(--muted)]">·</span>
-            <span className="text-[var(--accent)]">51°C</span>
+      <footer style={{ borderTop: "1px solid var(--border)", background: "var(--surface)", marginTop: 12 }}>
+        <div style={{ padding: "8px 16px", display: "flex", alignItems: "center", gap: 24, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Cpu style={{ width: 12, height: 12, color: "var(--accent)" }} />
+            <span style={{ color: "var(--muted)" }}>EDGE-PI-01</span>
+            <span style={{ color: "var(--accent)" }}>38%</span>
+            <span style={{ color: "var(--muted)" }}>CPU</span>
+            <span style={{ color: "var(--muted)" }}>·</span>
+            <span style={{ color: "var(--accent)" }}>51°C</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Cpu className="w-3 h-3 text-[var(--accent)]" />
-            <span className="text-[var(--muted)]">EDGE-JET-02</span>
-            <span className="text-[var(--accent)]">62%</span>
-            <span className="text-[var(--muted)]">CPU</span>
-            <span className="text-[var(--muted)]">·</span>
-            <span className="text-[var(--accent)]">58°C</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Cpu style={{ width: 12, height: 12, color: "var(--accent)" }} />
+            <span style={{ color: "var(--muted)" }}>EDGE-JET-02</span>
+            <span style={{ color: "var(--accent)" }}>62%</span>
+            <span style={{ color: "var(--muted)" }}>CPU</span>
+            <span style={{ color: "var(--muted)" }}>·</span>
+            <span style={{ color: "var(--accent)" }}>58°C</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Wifi className="w-3 h-3 text-[var(--safe)]" />
-            <span className="text-[var(--muted)]">NETWORK</span>
-            <span className="text-[var(--safe)]">STABLE</span>
-            <span className="text-[var(--muted)]">·</span>
-            <span className="text-[var(--muted)]">RTT</span>
-            <span className="text-[var(--accent)]">{rtt}ms</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Wifi style={{ width: 12, height: 12, color: "var(--safe)" }} />
+            <span style={{ color: "var(--muted)" }}>NETWORK</span>
+            <span style={{ color: "var(--safe)" }}>STABLE</span>
+            <span style={{ color: "var(--muted)" }}>·</span>
+            <span style={{ color: "var(--muted)" }}>RTT</span>
+            <span style={{ color: "var(--accent)" }}>{rtt}ms</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Inbox className="w-3 h-3 text-[var(--warn)]" />
-            <span className="text-[var(--muted)]">OFFLINE QUEUE</span>
-            <span className="text-[var(--warn)]">{queue} packet{queue === 1 ? "" : "s"}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Inbox style={{ width: 12, height: 12, color: "var(--warn)" }} />
+            <span style={{ color: "var(--muted)" }}>OFFLINE QUEUE</span>
+            <span style={{ color: "var(--warn)" }}>{queue} packet{queue === 1 ? "" : "s"}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-3 h-3 text-[var(--accent)]" />
-            <span className="text-[var(--muted)]">STANDARDS</span>
-            <span className="text-[var(--accent)]">5 loaded</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <ShieldCheck style={{ width: 12, height: 12, color: "var(--accent)" }} />
+            <span style={{ color: "var(--muted)" }}>STANDARDS</span>
+            <span style={{ color: "var(--accent)" }}>5 loaded</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Eye className="w-3 h-3 text-[var(--accent)]" />
-            <span className="text-[var(--muted)]">PRIVACY</span>
-            <span className="text-[var(--accent)]">FACE BLUR · ON-DEVICE</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Eye style={{ width: 12, height: 12, color: "var(--accent)" }} />
+            <span style={{ color: "var(--muted)" }}>PRIVACY</span>
+            <span style={{ color: "var(--accent)" }}>FACE BLUR · ON-DEVICE</span>
           </div>
-          <div className="flex-1" />
-          <div className="flex items-center gap-2">
-            <span className="text-[var(--muted)]">LAST SYNC</span>
-            <span className="text-[var(--accent)]">{lastSync}</span>
+          <div style={{ flex: 1 }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ color: "var(--muted)" }}>LAST SYNC</span>
+            <span style={{ color: "var(--accent)" }}>{lastSync}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[var(--muted)]">UPTIME</span>
-            <span className="text-[var(--safe)]">7d 14h 22m</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ color: "var(--muted)" }}>UPTIME</span>
+            <span style={{ color: "var(--safe)" }}>7d 14h 22m</span>
           </div>
         </div>
       </footer>
