@@ -64,6 +64,30 @@ const FACILITIES = [
   { name: "HOSP-D", icon: Activity, comply: 92, color: "safe", status: "0 OPEN · CLEAN" },
 ];
 
+const DATASETS = [
+  {
+    name: "Smoke Detection",
+    description: "Wildfire smoke and aerosol detection for perimeter and industrial monitoring.",
+    source: "Wildfire Smoke Dataset",
+    url: "https://public.roboflow.com/object-detection/wildfire-smoke",
+    status: "READY",
+  },
+  {
+    name: "Weapon Detection",
+    description: "Pistol and firearm recognition for high-risk security monitoring.",
+    source: "Pistols Dataset",
+    url: "https://public.roboflow.com/object-detection/pistols",
+    status: "READY",
+  },
+  {
+    name: "Violence / Fighting",
+    description: "Real-world violence and fighting scenarios for incident triage.",
+    source: "Real Life Violence Situations Dataset",
+    url: "https://www.kaggle.com/datasets/mohamedmustafa/real-life-violence-situations-dataset",
+    status: "READY",
+  },
+];
+
 const VIOLATIONS = [
   { id: "INC-2024-0741", sev: "sev2", sevLabel: "SEV-2", title: "Missing head protection", cam: "CAM-01 · CONSTRUCT-A · zone A-7", time: "14:23:07Z", standards: ["NFPA 70E §130.7", "OSHA 1926.100", "SOP-DC-2401 §4.2"], status: "AGENT INVESTIGATING", statusColor: "accent", rootCause: "Worker entered zone A-7 (active crane area) without class-E hard hat. Hat last logged at station B-3 11m ago." },
   { id: "INC-2024-0740", sev: "sev1", sevLabel: "SEV-1", title: "Arc flash suit absent during CST", cam: "CAM-02 · DC-B · switchgear-3", time: "14:18:52Z", standards: ["NFPA 70E §130.7(C)", "OSHA 1910.269"], status: "ESCALATED · SEV-1", statusColor: "danger", rootCause: "Critical switching task initiated on switchgear-3 without category-4 PPE. Suit present in locker L-7 but not donned." },
@@ -579,6 +603,29 @@ export default function App() {
                 <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginTop: 4 }}>{f.status}</div>
               </div>
             ))}
+          </div>
+
+          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 4, padding: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+              <div>
+                <div className="mono" style={{ fontSize: 9, color: "var(--muted)", letterSpacing: "0.08em" }}>DATASET POOL</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--fg)" }}>ADDED TRAINING SOURCES</div>
+              </div>
+              <div className="mono" style={{ fontSize: 10, color: "var(--accent)" }}>{DATASETS.length} READY</div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 8 }}>
+              {DATASETS.map((dataset) => (
+                <a key={dataset.name} href={dataset.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 4, padding: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span className="mono" style={{ fontSize: 9, color: "var(--accent)" }}>{dataset.status}</span>
+                    <ShieldCheck style={{ width: 12, height: 12, color: "var(--safe)" }} />
+                  </div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "var(--fg)" }}>{dataset.name}</div>
+                  <div className="mono" style={{ fontSize: 9, color: "var(--muted)", lineHeight: 1.5 }}>{dataset.description}</div>
+                  <div className="mono" style={{ fontSize: 9, color: "var(--info)" }}>{dataset.source}</div>
+                </a>
+              ))}
+            </div>
           </div>
 
           <PathToGreen violation={selected} />
