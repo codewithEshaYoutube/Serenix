@@ -713,41 +713,48 @@ function PathToGreen({ violation }) {
   );
 }
 
-/* ── AGENT PANEL ── */
+/* ── AUTOPILOT AGENT ── */
 function AgentPanel() {
-  const [tab, setTab] = useState("reasoning");
-  const [lines, setLines] = useState([]);
+  const [tab, setTab] = useState("autopilot");
+  const [selectedWorkflow, setSelectedWorkflow] = useState("ops");
   const [input, setInput] = useState("");
-  const scenarioIdx = useRef(0);
+  const [messages, setMessages] = useState([
+    {
+      role: "assistant",
+      text: "Autopilot ready. Describe a workflow or select one of the production templates below and I will build an execution plan with approvals and tool checkpoints.",
+    },
+  ]);
+  const [plan, setPlan] = useState(null);
+  const [status, setStatus] = useState("Ready for orchestration");
+  const [isRunning, setIsRunning] = useState(false);
   const streamRef = useRef(null);
 
-  useEffect(() => {
-    if (tab !== "reasoning") return;
-    let lineIdx = 0;
-    let timeoutId;
-    setLines([]);
-    const pushLine = () => {
-      const sc = REASONING_SCENARIOS[scenarioIdx.current];
-      if (lineIdx >= sc.length) {
-        timeoutId = setTimeout(() => {
-          scenarioIdx.current = (scenarioIdx.current + 1) % REASONING_SCENARIOS.length;
-          lineIdx = 0;
-          setLines([]);
-          pushLine();
-        }, 3200);
-        return;
-      }
-      setLines((prev) => [...prev, sc[lineIdx]]);
-      lineIdx++;
-      timeoutId = setTimeout(pushLine, 280 + Math.random() * 160);
-    };
-    pushLine();
-    return () => clearTimeout(timeoutId);
-  }, [tab]);
+  const workflowTemplates = [
+    {
+      id: "ops",
+      title: "Operations Alert Remediation",
+      description: "Safe triage for system alerts, incident response, and remediation handoffs.",
+      focus: "alerts · approvals · evidence",
+    },
+    {
+      id: "sales",
+      title: "Customer Inquiry to Quote",
+      description: "Turn inbound requests into qualified opportunities, pricing, and handoff steps.",
+      focus: "CRM · pricing · follow-up",
+    },
+    {
+      id: "hr",
+      title: "Resume Screening to Interview",
+      description: "Review candidate data, score fit, and schedule interviews with human checkpoints.",
+      focus: "screening · scheduling · compliance",
+    },
+  ];
+
+  const selectedTemplate = workflowTemplates.find((w) => w.id === selectedWorkflow) || workflowTemplates[0];
 
   useEffect(() => {
     if (streamRef.current) streamRef.current.scrollTop = streamRef.current.scrollHeight;
-  }, [lines]);
+  }, [messages, plan]);
 
   const staticLines =
     tab === "standards" ? STANDARDS_TAB
@@ -755,13 +762,136 @@ function AgentPanel() {
     : tab === "models" ? MODELS_TAB
     : null;
 
-  const send = () => {
-    if (!input.trim()) return;
-    setLines((prev) => [...prev, { t: `QUERY: ${input}`, c: "var(--accent)" }]);
+  const buildFallbackPlan = (workflow, prompt) => {
+    const basePrompt = `${workflow.title} · ${prompt}`.toLowerCase();
+    if (workflow.id === "sales") {
+      return {
+        objective: "Convert an inbound request into a qualified quote and customer handoff.",
+        confidence: 0.96,
+        summary: "The autopilot will validate requirements, compile a quote, request approval, and prepare the customer follow-up package.",
+        steps: [
+          { title: "Capture customer intent and product scope", tool: "Inbox + CRM enrichment", status: "complete" },
+          { title: "Generate pricing and margin review", tool: "Pricing engine", status: "complete" },
+          { title: "Human approval checkpoint", tool: "Sales lead sign-off", status: "pending" },
+          { title: "Draft contract and outreach sequence", tool: "Document generator", status: "pending" },
+        ],
+        checkpoints: ["Sales manager approval before sending quote", "Customer confirmation before contract execution"],
+        nextAction: "Approve the quote package and send it to the customer.",
+      };
+    }
+    if (workflow.id === "hr") {
+      return {
+        objective: "Screen a candidate, score fit, and schedule the next interview step.",
+        confidence: 0.95,
+        summary: "The workflow extracts evidence from the resume, checks role fit, and pauses for recruiter approval before scheduling.",
+        steps: [
+          { title: "Extract skills and experience from the resume", tool: "Resume parser", status: "complete" },
+          { title: "Score fit against the role requirements", tool: "Decision model", status: "complete" },
+          { title: "Recruiter review checkpoint", tool: "Human-in-loop approval", status: "pending" },
+          { title: "Schedule interview and send confirmations", tool: "Calendar integration", status: "pending" },
+        ],
+        checkpoints: ["Recruiter sign-off before interview booking", "Compliance review for regulated roles"],
+        nextAction: "Approve shortlisted candidate and reserve the interview slot.",
+      };
+    }
+    return {
+      objective: "Contain the incident, preserve evidence, and execute the safest remediation path.",
+      confidence: 0.97,
+      summary: `The autopilot will classify the alert, correlate evidence, and route the next action to the correct owner with a human checkpoint before closure. ${basePrompt.includes("urgent") ? "Priority handling was boosted due to urgency." : ""}`,
+      steps: [
+        { title: "Collect alert, system snapshot, and recent events", tool: "Monitoring API", status: "complete" },
+        { title: "Classify impact and affected assets", tool: "Risk engine", status: "complete" },
+        { title: "Escalate for human approval", tool: "Operations lead approval", status: "pending" },
+        { title: "Execute remediation and attach evidence", tool: "Automation runner", status: "pending" },
+      ],
+      checkpoints: ["Operations lead approval before any destructive action", "Customer or stakeholder update after mitigation"],
+      nextAction: "Approve the remediation playbook and run the automation sequence.",
+    };
+  };
+
+  const callQwenAgent = async (workflow, prompt) => {
+    const apiKey = import.meta.env.VITE_QWEN_API_KEY || "";
+    if (!apiKey) {
+      return null;
+    }
+    try {
+      const response = await fetch("https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "qwen-plus",
+          temperature: 0.2,
+          messages: [
+            {
+              role: "system",
+              content: "You are Serenix Autopilot, an enterprise workflow orchestrator. Produce a concise plan with objective, confidence, 3-4 execution steps, and human checkpoints. Format as bullet points.",
+            },
+            {
+              role: "user",
+              content: `Workflow: ${workflow.title}\nRequest: ${prompt}\nReturn concise output only.`,
+            },
+          ],
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data?.error?.message || "API request failed");
+      return data?.choices?.[0]?.message?.content || "";
+    } catch (error) {
+      console.error("Qwen agent failed", error);
+      return null;
+    }
+  };
+
+  const send = async () => {
+    const prompt = input.trim();
+    if (!prompt) return;
+    setMessages((prev) => [...prev, { role: "user", text: prompt }]);
+    setStatus("Planning workflow...");
+    setIsRunning(true);
     setInput("");
-    setTimeout(() => {
-      setLines((prev) => [...prev, { t: "Processing query against standards store...", c: "var(--muted)" }]);
-    }, 400);
+    try {
+      const aiText = await callQwenAgent(selectedTemplate, prompt);
+      const fallbackPlan = buildFallbackPlan(selectedTemplate, prompt);
+      const planText = aiText?.trim() || fallbackPlan.summary;
+      setPlan({
+        ...fallbackPlan,
+        aiSummary: planText,
+      });
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text: aiText ? `Autopilot plan drafted from Qwen Cloud: ${planText}` : `Autopilot plan drafted locally: ${fallbackPlan.summary}`,
+        },
+      ]);
+      setStatus(aiText ? "Qwen Cloud plan generated" : "Local autopilot plan generated");
+    } catch (error) {
+      setMessages((prev) => [...prev, { role: "assistant", text: `Plan generation failed: ${error.message}` }]);
+      setStatus("Plan generation failed");
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  const approvePlan = () => {
+    if (!plan) return;
+    setPlan((prev) => ({
+      ...prev,
+      steps: prev.steps.map((step, index) => ({
+        ...step,
+        status: index === 0 || index === 1 ? "complete" : "active",
+      })),
+    }));
+    setStatus("Human approval granted — workflow is executing");
+    setMessages((prev) => [...prev, { role: "assistant", text: "Approval accepted. The automation sequence is now running with the next checkpoints enabled." }]);
+  };
+
+  const escalatePlan = () => {
+    setStatus("Escalated to operations lead");
+    setMessages((prev) => [...prev, { role: "assistant", text: "Escalation logged. A human operator will review the plan before execution proceeds." }]);
   };
 
   return (
@@ -771,49 +901,125 @@ function AgentPanel() {
           <div style={{ width: 20, height: 20, borderRadius: 2, background: "linear-gradient(135deg, var(--info), var(--accent))", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <BrainCircuit style={{ width: 12, height: 12, color: "#000" }} />
           </div>
-          <h3 className="mono" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em" }}>CLOUD AGENT</h3>
-          <span className="mono" style={{ fontSize: 9, color: "var(--info)" }}>RAG · GPT-4o</span>
+          <h3 className="mono" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em" }}>AUTOPILOT AGENT</h3>
+          <span className="mono" style={{ fontSize: 9, color: "var(--accent)" }}>QWEN · HUMAN-IN-THE-LOOP</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <span className="status-dot" />
-          <span className="mono" style={{ fontSize: 9, color: "var(--muted)" }}>PROCESSING</span>
+          <span className="mono" style={{ fontSize: 9, color: "var(--muted)" }}>{isRunning ? "PLANNING" : status}</span>
         </div>
       </div>
-      <div style={{ display: "flex", borderBottom: "1px solid var(--border)" }}>
-        {["reasoning", "standards", "devices", "models"].map((t) => (
-          <div key={t} className={`tab ${tab === t ? "active" : ""}`} onClick={() => setTab(t)}>
+
+      <div style={{ display: "flex", borderBottom: "1px solid var(--border)", flexWrap: "wrap" }}>
+        {[
+          "autopilot",
+          "standards",
+          "devices",
+          "models",
+        ].map((t) => (
+          <div
+            key={t}
+            className={`tab ${tab === t ? "active" : ""}`}
+            onClick={() => setTab(t)}
+            style={{ textTransform: "uppercase" }}
+          >
             {t}
           </div>
         ))}
       </div>
-      <div ref={streamRef} className="agent-stream" style={{ padding: 12, height: 280, overflowY: "auto" }}>
-        {(staticLines || lines).map((l, i) => (
-          <div key={i} className="agent-line" style={{ color: l.c }}>
-            {l.t && <span style={{ color: "var(--muted)" }}>{"› "}</span>}
-            {l.t}
+
+      {tab === "autopilot" ? (
+        <div style={{ padding: 12, display: "grid", gap: 10 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {workflowTemplates.map((template) => (
+              <button
+                key={template.id}
+                className={`btn ${selectedWorkflow === template.id ? "active" : ""}`}
+                onClick={() => setSelectedWorkflow(template.id)}
+                style={{ padding: "6px 8px", fontSize: 9, borderRadius: 3 }}
+              >
+                {template.title}
+              </button>
+            ))}
           </div>
-        ))}
-      </div>
-      <div style={{ padding: "8px 12px", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 8 }}>
-        <span className="mono" style={{ fontSize: 10, color: "var(--accent)" }}>›</span>
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && send()}
-          type="text"
-          placeholder="query agent: e.g. summarize active threats"
-          style={{
-            flex: 1,
-            background: "transparent",
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 11,
-            border: "none",
-            outline: "none",
-            color: "var(--fg)",
-          }}
-        />
-        <button className="btn" onClick={send}>SEND</button>
-      </div>
+
+          <div style={{ border: "1px solid var(--border)", borderRadius: 4, padding: 10, background: "rgba(255,255,255,0.03)" }}>
+            <div className="mono" style={{ fontSize: 9, color: "var(--accent)", marginBottom: 4 }}>ACTIVE WORKFLOW</div>
+            <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 4 }}>{selectedTemplate.title}</div>
+            <div className="mono" style={{ fontSize: 9, color: "var(--muted)", lineHeight: 1.5 }}>{selectedTemplate.description}</div>
+            <div className="mono" style={{ fontSize: 9, color: "var(--info)", marginTop: 6 }}>{selectedTemplate.focus}</div>
+          </div>
+
+          <div ref={streamRef} className="agent-stream" style={{ height: 240, overflowY: "auto", padding: 10, border: "1px solid var(--border)", borderRadius: 4, background: "rgba(0,0,0,0.22)" }}>
+            {messages.map((message, index) => (
+              <div key={`${message.role}-${index}`} className="agent-line" style={{ color: message.role === "assistant" ? "var(--accent)" : "var(--fg)" }}>
+                {message.text}
+              </div>
+            ))}
+            {plan && (
+              <div style={{ marginTop: 8, borderTop: "1px solid var(--border)", paddingTop: 8 }}>
+                <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 6 }}>EXECUTION PLAN</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--fg)", marginBottom: 6 }}>{plan.objective}</div>
+                <div className="mono" style={{ fontSize: 9, color: "var(--info)", marginBottom: 8 }}>Confidence {Math.round(plan.confidence * 100)}%</div>
+                <div style={{ fontSize: 11, lineHeight: 1.5, color: "var(--fg)", marginBottom: 8 }}>{plan.aiSummary}</div>
+                <div style={{ display: "grid", gap: 6 }}>
+                  {plan.steps.map((step, index) => (
+                    <div key={`${step.title}-${index}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "6px 8px", border: "1px solid var(--border)", borderRadius: 3, background: "rgba(255,255,255,0.03)" }}>
+                      <div style={{ fontSize: 10 }}>{step.title}</div>
+                      <div className="mono" style={{ fontSize: 8, color: "var(--muted)" }}>{step.tool}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: 8 }}>
+                  <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 4 }}>HUMAN CHECKPOINTS</div>
+                  {plan.checkpoints.map((checkpoint, index) => (
+                    <div key={`${checkpoint}-${index}`} className="mono" style={{ fontSize: 9, color: "var(--warn)", marginBottom: 4 }}>• {checkpoint}</div>
+                  ))}
+                </div>
+                <div style={{ marginTop: 8, fontSize: 11, color: "var(--accent)" }}>{plan.nextAction}</div>
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && send()}
+              type="text"
+              placeholder="Describe your workflow: e.g. handle a customer escalation or triage a system alert"
+              style={{
+                flex: 1,
+                background: "transparent",
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 11,
+                border: "1px solid var(--border)",
+                borderRadius: 4,
+                outline: "none",
+                color: "var(--fg)",
+                padding: "8px 10px",
+              }}
+            />
+            <button className="btn" onClick={send} disabled={isRunning}>{isRunning ? "WORKING" : "RUN AUTOPILOT"}</button>
+          </div>
+
+          {plan && (
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <button className="btn active" onClick={approvePlan}>APPROVE & EXECUTE</button>
+              <button className="btn" onClick={escalatePlan}>ESCALATE</button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div ref={streamRef} className="agent-stream" style={{ padding: 12, height: 280, overflowY: "auto" }}>
+          {(staticLines || []).map((line, index) => (
+            <div key={`${line.t}-${index}`} className="agent-line" style={{ color: line.c }}>
+              {line.t && <span style={{ color: "var(--muted)" }}>{"› "}</span>}
+              {line.t}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
