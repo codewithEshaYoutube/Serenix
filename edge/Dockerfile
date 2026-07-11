@@ -24,7 +24,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # pinned runtime version, but the runtime .so is all the link needs
     && ln -s "$(ls /usr/local/cuda-13.1/lib64/libcublas.so.* | head -1)" /usr/local/cuda-13.1/lib64/libcublas.so
 COPY --from=export /DeepStream-Yolo/nvdsinfer_custom_impl_Yolo /opt/DeepStream-Yolo/nvdsinfer_custom_impl_Yolo
-RUN cd /opt/DeepStream-Yolo/nvdsinfer_custom_impl_Yolo && CUDA_VER=13.1 make
+# DS 9.0 added rotation_angle (OBB) to NvDsInferParseObjectInfo; the parser
+# predates it and leaves the field uninitialized -> boxes render tilted by
+# random angles. Zero-init the struct.
+RUN cd /opt/DeepStream-Yolo/nvdsinfer_custom_impl_Yolo \
+    && sed -i 's/NvDsInferParseObjectInfo b;/NvDsInferParseObjectInfo b = {};/' nvdsparsebbox_Yolo.cpp \
+    && grep -q 'NvDsInferParseObjectInfo b = {};' nvdsparsebbox_Yolo.cpp \
+    && CUDA_VER=13.1 make
 
 # Stage 3 — runtime
 FROM nvcr.io/nvidia/deepstream:9.0-samples-multiarch
@@ -35,4 +41,4 @@ COPY --from=export /DeepStream-Yolo/yolo11n.onnx /DeepStream-Yolo/labels.txt /mo
 # nvinfer serializes the TensorRT engine next to the ONNX file (it ignores
 # model-engine-file for writing), so copy the ONNX into the /engines volume —
 # that's what makes the engine survive container restarts.
-ENTRYPOINT ["bash", "-c", "cp -f /models/yolo11n.onnx /engines/ && rm -f /etc/ld.so.conf.d/*compat*.conf && ldconfig && exec deepstream-test5-app -c /configs/ds_yolo_mqtt.txt"]
+ENTRYPOINT ["bash", "-c", "cp -f /models/*.onnx /engines/ && (cp -f /custom/*.onnx /engines/ 2>/dev/null || true) && rm -f /etc/ld.so.conf.d/*compat*.conf && ldconfig && exec deepstream-test5-app -c /configs/ds_yolo_mqtt.txt -t"]
