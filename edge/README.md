@@ -12,28 +12,52 @@ stream, and an annotated output video.
    plenty of construction-site clips. Different filenames? Point the
    `[sourceN]` `uri=` lines in `configs/ds_yolo_mqtt.txt` at your files.
 
-2. `docker compose up --build` — the first run builds the TensorRT engine
-   (~2 min, cached in the `engines` volume; later runs start in seconds), then
-   per-stream `**PERF` FPS lines appear.
+2. Start the stack (from this `edge/` directory) and watch the logs:
+
+   ```sh
+   docker compose up --build -d
+   docker compose logs -f deepstream
+   ```
+
+   The very first run builds the Docker image (~10 min) and then the TensorRT
+   engine (~2 min, cached in the `engines` volume — later runs start in
+   seconds). The pipeline is running once per-stream `**PERF` FPS lines appear
+   in the logs. `Ctrl+C` only detaches from the logs; the stack keeps running.
 
 ## Watch the output
 
-- **Live view (demo):** open `rtsp://localhost:8554/ds-test` in VLC, or:
+- **Live view (demo):**
 
   ```sh
   ffplay -rtsp_transport tcp rtsp://localhost:8554/ds-test
   ```
 
-- **Detection events:**
+  Expect a few seconds of `non-existing PPS` / `no frame!` warnings while
+  ffplay waits for the next keyframe — the window opens right after. VLC
+  works too: Media > Open Network Stream > `rtsp://localhost:8554/ds-test`.
+
+- **Detection events:** subscribe from the host using the client already
+  inside the broker container (nothing to install):
 
   ```sh
-  mosquitto_sub -h localhost -t ds/detections
+  docker exec edge-mosquitto-1 mosquitto_sub -t ds/detections
   ```
 
-- **Output video:** written to `out/output.mkv` (overwritten each run; grows
-  until you stop the stack since the sources loop forever). Stop with
-  `docker compose down` — the stack shuts down gracefully so the file is
-  finalized.
+  One JSON event per detected object per frame. If you'd rather have a native
+  client: `sudo apt install mosquitto-clients`, then
+  `mosquitto_sub -h localhost -t ds/detections`.
+
+- **Output video:** `out/output.mkv` never "finishes" on its own — the
+  sources loop forever, so it grows until you stop the stack. Record as long
+  as you want, then:
+
+  ```sh
+  docker compose down
+  ```
+
+  This shuts the pipeline down gracefully and finalizes the file; play
+  `out/output.mkv` afterwards. It is overwritten on the next start, so copy
+  it elsewhere if you want to keep it.
 
 ## Use a finetuned YOLO11 model
 
