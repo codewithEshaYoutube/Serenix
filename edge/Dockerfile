@@ -36,9 +36,5 @@ RUN cd /opt/DeepStream-Yolo/nvdsinfer_custom_impl_Yolo \
 FROM nvcr.io/nvidia/deepstream:9.0-samples-multiarch
 COPY --from=parser /opt/DeepStream-Yolo/nvdsinfer_custom_impl_Yolo/libnvdsinfer_custom_impl_Yolo.so /opt/DeepStream-Yolo/nvdsinfer_custom_impl_Yolo/libnvdsinfer_custom_impl_Yolo.so
 COPY --from=export /DeepStream-Yolo/yolo11n.onnx /DeepStream-Yolo/labels.txt /models/
-# Drop the image's CUDA forward-compat libs (they break on hosts with older
-# drivers, e.g. 580 vs the baked-in 590 -> CUDA error 804; harmless elsewhere).
-# nvinfer serializes the TensorRT engine next to the ONNX file (it ignores
-# model-engine-file for writing), so copy the ONNX into the /engines volume —
-# that's what makes the engine survive container restarts.
-ENTRYPOINT ["bash", "-c", "cp -f /models/*.onnx /engines/ && (cp -f /custom/*.onnx /engines/ 2>/dev/null || true) && rm -f /etc/ld.so.conf.d/*compat*.conf && ldconfig && exec deepstream-test5-app -c /configs/ds_yolo_mqtt.txt -t"]
+COPY --chmod=755 entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]

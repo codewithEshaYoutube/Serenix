@@ -6,12 +6,20 @@ stream, and an annotated output video.
 
 ## Run it
 
-1. Put a video at `videos/videos.mp4`. No video handy? Grab the DeepStream sample:
+1. Fetch the 4 demo videos (free construction-site clips from
+   [Mixkit](https://mixkit.co/license/), ~50 MB total — `videos/` is gitignored):
 
    ```sh
-   docker run --rm -v ./videos:/out nvcr.io/nvidia/deepstream:9.0-samples-multiarch \
-     cp /opt/nvidia/deepstream/deepstream/samples/streams/sample_1080p_h264.mp4 /out/videos.mp4
+   cd videos
+   curl -L -o construction_14729.mp4 https://assets.mixkit.co/videos/14729/14729-720.mp4
+   curl -L -o construction_32296.mp4 https://assets.mixkit.co/videos/32296/32296-720.mp4
+   curl -L -o construction_23170.mp4 https://assets.mixkit.co/videos/23170/23170-720.mp4
+   curl -L -o construction_49192.mp4 https://assets.mixkit.co/videos/49192/49192-720.mp4
+   cd ..
    ```
+
+   (Any H.264 mp4s work — just point the `[sourceN]` `uri=` lines in
+   `configs/ds_yolo_mqtt.txt` at your files.)
 
 2. `docker compose up --build` — the first run builds the TensorRT engine
    (~2 min, cached in the `engines` volume; later runs start in seconds), then
