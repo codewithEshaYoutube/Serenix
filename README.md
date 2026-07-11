@@ -4,7 +4,7 @@
 
 ---
 
-## Overview in Plain English
+## Overview 
 
 Serenix AI checks whether real workplaces actually comply with safety regulations, and explains its answers with the regulation text to back them up.
 
