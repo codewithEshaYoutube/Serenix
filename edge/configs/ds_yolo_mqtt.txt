@@ -27,7 +27,7 @@ nvbuf-memory-type=0
 [source0]
 enable=1
 type=3
-uri=file:///videos/construction_14729.mp4
+uri=file:///videos/construction_1.mp4
 num-sources=1
 gpu-id=0
 nvbuf-memory-type=0
@@ -35,7 +35,7 @@ nvbuf-memory-type=0
 [source1]
 enable=1
 type=3
-uri=file:///videos/construction_32296.mp4
+uri=file:///videos/construction_2.mp4
 num-sources=1
 gpu-id=0
 nvbuf-memory-type=0
@@ -43,7 +43,7 @@ nvbuf-memory-type=0
 [source2]
 enable=1
 type=3
-uri=file:///videos/construction_23170.mp4
+uri=file:///videos/construction_3.mp4
 num-sources=1
 gpu-id=0
 nvbuf-memory-type=0
@@ -51,7 +51,7 @@ nvbuf-memory-type=0
 [source3]
 enable=1
 type=3
-uri=file:///videos/construction_49192.mp4
+uri=file:///videos/construction_4.mp4
 num-sources=1
 gpu-id=0
 nvbuf-memory-type=0

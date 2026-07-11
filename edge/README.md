@@ -6,20 +6,11 @@ stream, and an annotated output video.
 
 ## Run it
 
-1. Fetch the 4 demo videos (free construction-site clips from
-   [Mixkit](https://mixkit.co/license/), ~50 MB total — `videos/` is gitignored):
-
-   ```sh
-   cd videos
-   curl -L -o construction_14729.mp4 https://assets.mixkit.co/videos/14729/14729-720.mp4
-   curl -L -o construction_32296.mp4 https://assets.mixkit.co/videos/32296/32296-720.mp4
-   curl -L -o construction_23170.mp4 https://assets.mixkit.co/videos/23170/23170-720.mp4
-   curl -L -o construction_49192.mp4 https://assets.mixkit.co/videos/49192/49192-720.mp4
-   cd ..
-   ```
-
-   (Any H.264 mp4s work — just point the `[sourceN]` `uri=` lines in
-   `configs/ds_yolo_mqtt.txt` at your files.)
+1. Put 4 H.264 mp4s at `videos/construction_1.mp4` … `construction_4.mp4`
+   (`videos/` is gitignored). Free stock sites like [Pexels](https://www.pexels.com/videos/),
+   [Pixabay](https://pixabay.com/videos/), or [Mixkit](https://mixkit.co/) have
+   plenty of construction-site clips. Different filenames? Point the
+   `[sourceN]` `uri=` lines in `configs/ds_yolo_mqtt.txt` at your files.
 
 2. `docker compose up --build` — the first run builds the TensorRT engine
    (~2 min, cached in the `engines` volume; later runs start in seconds), then
