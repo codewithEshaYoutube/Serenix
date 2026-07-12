@@ -9,6 +9,21 @@ import {
 import "./serenix.css";
 import heroImg from "./assets/hero.png";
 
+/* ── TARGET DATA IMAGES ── */
+// ─── If using VITE (import.meta.glob) ───
+const targetImageModules = import.meta.glob("./assets/target-data/*.{jpg,jpeg,png,webp}", {
+  eager: true,
+  as: "url",
+});
+const targetImageList = Object.values(targetImageModules);
+
+// ─── If using CRA / Webpack (require.context) ───
+// Uncomment the 2 lines below and COMMENT OUT the 4 lines above:
+// const targetImageContext = require.context("./assets/target-data", false, /\.(jpg|jpeg|png|webp)$/);
+// const targetImageList = targetImageContext.keys().map(targetImageContext);
+
+const shuffledTargetImages = [...targetImageList].sort(() => Math.random() - 0.5);
+
 /* ── CAMERA DATA ── */
 const CAMERAS = [
   {
@@ -1181,19 +1196,19 @@ function AgentPanel() {
   };
 
   const callQwenAgent = async (workflow, prompt) => {
-    const apiKey = import.meta.env.VITE_QWEN_API_KEY || "";
+    const apiKey = import.meta.env.VITE_DASHSCOPE_API_KEY || import.meta.env.VITE_QWEN_API_KEY || "";
     if (!apiKey) {
       return null;
     }
     try {
-      const response = await fetch("https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions", {
+      const response = await fetch("https://dashscope-intl.aliyuncs.com/api/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "qwen-plus",
+          model: "qwen3.6-plus",
           temperature: 0.2,
           messages: [
             {
@@ -1211,7 +1226,7 @@ function AgentPanel() {
       if (!response.ok) throw new Error(data?.error?.message || "API request failed");
       return data?.choices?.[0]?.message?.content || "";
     } catch (error) {
-      console.error("Qwen agent failed", error);
+      console.error("Dashscope agent failed", error);
       return null;
     }
   };
