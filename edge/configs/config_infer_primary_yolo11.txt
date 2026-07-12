@@ -1,0 +1,32 @@
+# nvinfer config for YOLO11n (ONNX exported by the DeepStream-Yolo script,
+# parsed by its custom lib — both baked into the image by edge/Dockerfile).
+
+[property]
+gpu-id=0
+net-scale-factor=0.0039215697906911373
+model-color-format=0
+# The ONNX lives in the /engines volume (entrypoint copies it there) because
+# nvinfer writes the built TensorRT engine next to the ONNX — this way the
+# first-run engine build (~1-3 min) is cached across restarts.
+onnx-file=/engines/yolo11n.onnx
+model-engine-file=/engines/yolo11n.onnx_b4_gpu0_fp16.engine
+labelfile-path=/models/labels.txt
+batch-size=4
+# 0=FP32 1=INT8 2=FP16
+network-mode=2
+num-detected-classes=80
+interval=0
+gie-unique-id=1
+process-mode=1
+network-type=0
+# Ultralytics-recommended accuracy settings for DeepStream:
+cluster-mode=4
+maintain-aspect-ratio=1
+symmetric-padding=1
+parse-bbox-func-name=NvDsInferParseYolo
+custom-lib-path=/opt/DeepStream-Yolo/nvdsinfer_custom_impl_Yolo/libnvdsinfer_custom_impl_Yolo.so
+
+[class-attrs-all]
+nms-iou-threshold=0.45
+pre-cluster-threshold=0.25
+topk=300

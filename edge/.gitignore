@@ -1,0 +1,5 @@
+videos/*.mp4
+models/*
+!models/.gitkeep
+out/*
+!out/.gitkeep
