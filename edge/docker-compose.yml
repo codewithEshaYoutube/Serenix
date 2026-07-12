@@ -1,0 +1,33 @@
+services:
+  deepstream:
+    build: .
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+    volumes:
+      - ./videos:/videos:ro
+      - ./configs:/configs:ro
+      # Drop a finetuned ONNX + labels.txt here (see README).
+      - ./models:/custom:ro
+      # Annotated output video is written here.
+      - ./out:/out
+      # TensorRT engine is built on first run (~1-3 min); cached here so
+      # restarts are fast.
+      - engines:/engines
+    ports:
+      # RTSP live view: rtsp://localhost:8554/ds-test
+      - "8554:8554"
+    # SIGINT lets deepstream-test5-app send EOS and finalize the output video.
+    stop_signal: SIGINT
+    stop_grace_period: 15s
+    depends_on: [mosquitto]
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports: ["1883:1883"]
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+
+volumes:
+  engines:
