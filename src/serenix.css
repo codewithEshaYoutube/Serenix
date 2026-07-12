@@ -92,6 +92,295 @@ body {
   gap: 12px;
 }
 
+.image-diff-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.image-diff-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.image-diff-status {
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  background: rgba(0,229,160,0.08);
+}
+
+.image-diff-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.image-diff-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.image-diff-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+  filter: saturate(0.95) contrast(1.05);
+}
+
+.image-diff-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.image-diff-tag {
+  background: rgba(0,229,160,0.12);
+  color: var(--accent);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.image-diff-tag-danger {
+  background: rgba(239,68,68,0.12);
+  color: var(--danger);
+}
+
+.image-diff-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 16px 40px rgba(0,229,160,0.12);
+}
+
+.dataset-manager {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.dataset-manager-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dataset-manager-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dataset-manager-tab {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--muted);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dataset-manager-tab:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.dataset-manager-tab.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(0,229,160,0.08);
+}
+
+.dataset-manager-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.dataset-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: grid;
+  gap: 10px;
+}
+
+.dataset-card:hover {
+  border-color: rgba(0,229,160,0.24);
+  transform: translateY(-1px);
+}
+
+.dataset-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 12px 32px rgba(0,229,160,0.12);
+}
+
+.dataset-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dataset-card-header h3 {
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.dataset-card-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dataset-card-body {
+  display: grid;
+  gap: 8px;
+}
+
+.dataset-card-desc {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.dataset-card-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 9px;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+
+.dataset-detail {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.dataset-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.progress-bar-wrap {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.analysis-panel {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.analysis-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.analysis-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.analysis-card-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  color: var(--accent);
+}
+
+.analysis-card ul {
+  list-style: inside disc;
+  padding-left: 10px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.analysis-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.analysis-pill {
+  background: rgba(56,189,248,0.12);
+  color: var(--info);
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.analysis-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.analysis-footer p {
+  margin-top: 6px;
+  color: var(--fg);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
 /* Camera card */
 .camera-card {
   background: var(--surface);

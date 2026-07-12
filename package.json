@@ -8,7 +8,11 @@
     "dev": "vite --host 0.0.0.0 --port 5173 --strictPort",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "edge": "node scripts/run-edge.mjs",
+    "edge:logs": "docker compose -f edge/docker-compose.yml logs -f deepstream",
+    "edge:down": "docker compose -f edge/docker-compose.yml down",
+    "edge:config": "docker compose -f edge/docker-compose.yml config"
   },
   "dependencies": {
     "lucide-react": "^1.23.0",

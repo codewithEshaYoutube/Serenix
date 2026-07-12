@@ -22,6 +22,15 @@ The idea in one line: detection is a commodity; Serenix reasons about what it se
 
 ---
 
+## Run the edge stack from the repository root
+
+Use these commands from the repository root to control the Docker-based edge pipeline in the [edge](edge) folder:
+
+- `npm run edge` — build and start the edge stack
+- `npm run edge:logs` — follow the DeepStream container logs
+- `npm run edge:down` — stop the edge stack
+- `npm run edge:config` — validate the Compose configuration
+
 ## System Architecture
 
 ```

@@ -7,6 +7,7 @@ import {
   Flame, Crosshair, Swords, TreePine, Car, Shield, Zap
 } from "lucide-react";
 import "./serenix.css";
+import heroImg from "./assets/hero.png";
 
 /* ── CAMERA DATA ── */
 const CAMERAS = [
@@ -99,6 +100,129 @@ const FACILITIES = [
   { name: "FOREST-E", icon: TreePine, comply: 42, color: "smoke", status: "SMOKE ACTIVE · SEV-1", category: "smoke" },
   { name: "LOBBY-F", icon: Shield, comply: 0, color: "weapon", status: "WEAPON · LOCKDOWN", category: "weapon" },
   { name: "PARKING-G", icon: Car, comply: 0, color: "violence", status: "VIOLENCE · DISPATCHED", category: "violence" },
+];
+
+const DATASETS = [
+  {
+    id: "smoke",
+    name: "Wildfire Smoke Detection",
+    category: "object",
+    source: "Roboflow",
+    sourceUrl: "https://public.roboflow.com/object-detection/wildfire-smoke",
+    badge: "Object Detection",
+    desc: "Aerial and ground-level wildfire smoke images for early detection, with bounding boxes around smoke plumes in challenging terrain.",
+    format: "YOLOv8 / COCO",
+    size: "~2.4 GB",
+    images: "~6,800",
+    classes: "1 (smoke)",
+    progress: 85,
+    progressColor: "var(--smoke)",
+  },
+  {
+    id: "weapons",
+    name: "Pistols / Weapon Detection",
+    category: "object",
+    source: "Roboflow",
+    sourceUrl: "https://public.roboflow.com/object-detection/pistols",
+    badge: "Object Detection",
+    desc: "Pistol and handgun detection in real-world surveillance scenes, crowds, and checkpoint areas.",
+    format: "YOLOv8 / VOC / COCO",
+    size: "~850 MB",
+    images: "~4,200",
+    classes: "1 (pistol)",
+    progress: 75,
+    progressColor: "var(--weapon)",
+  },
+  {
+    id: "fall",
+    name: "UR Fall Detection Dataset",
+    category: "video",
+    source: "UR Rzeszow",
+    sourceUrl: "http://fenix.univ.rzeszow.pl/~mkepski/ds/uf.html",
+    badge: "Video Classification",
+    desc: "Ceiling-camera fall videos with ADL sequences and depth data for robust fall detection training.",
+    format: "Raw Video + Depth",
+    size: "~18 GB",
+    images: "~70 videos + depth maps",
+    classes: "2 (fall, no_fall)",
+    progress: 60,
+    progressColor: "var(--warn)",
+  },
+  {
+    id: "violence",
+    name: "Real-Life Violence Situations",
+    category: "video",
+    source: "Kaggle",
+    sourceUrl: "https://www.kaggle.com/datasets/mohamedmustafa/real-life-violence-situations-dataset",
+    badge: "Video Classification",
+    desc: "CCTV footage of violent and non-violent situations, ideal for surveillance violence detection.",
+    format: "MP4 Videos",
+    size: "~2.5 GB",
+    images: "~2,000 videos",
+    classes: "2 (Violence, NonViolence)",
+    progress: 70,
+    progressColor: "var(--violence)",
+  },
+  {
+    id: "ucfcrime",
+    name: "UCF-Crime Anomaly Detection",
+    category: "anomaly",
+    source: "UCF CRCV",
+    sourceUrl: "https://www.crcv.ucf.edu/projects/real-world/",
+    badge: "Anomaly Detection",
+    desc: "Large-scale surveillance dataset with 13 anomaly categories plus normal events.",
+    format: "Videos + Temporal Annotations",
+    size: "~180 GB",
+    images: "~1,900 videos",
+    classes: "13 anomaly + Normal",
+    progress: 45,
+    progressColor: "var(--info)",
+  },
+  {
+    id: "ucf101",
+    name: "UCF101 Action Recognition",
+    category: "video",
+    source: "UCF CRCV",
+    sourceUrl: "https://www.crcv.ucf.edu/data/UCF101.php",
+    badge: "Action Recognition",
+    desc: "101 action classes in realistic settings, a benchmark dataset for human activity recognition.",
+    format: "AVI Videos + Splits",
+    size: "~6.5 GB",
+    images: "~13,320 clips",
+    classes: "101 action classes",
+    progress: 55,
+    progressColor: "var(--accent-secondary)",
+  },
+  {
+    id: "ppe",
+    name: "PPE Detection (Helmet, Vest, Gloves)",
+    category: "safety",
+    source: "Roboflow",
+    sourceUrl: "https://universe.roboflow.com/search?q=PPE",
+    badge: "Object Detection",
+    desc: "Helmets, vests, gloves, goggles and boots detection for construction and industrial safety monitoring.",
+    format: "YOLOv8 / COCO",
+    size: "~5 GB",
+    images: "~15,000+",
+    classes: "5+ (Helmet, Vest, Gloves, Goggles, Boots)",
+    progress: 65,
+    progressColor: "var(--safe)",
+  },
+  {
+    id: "fire",
+    name: "Fire Detection Dataset",
+    category: "object",
+    source: "Roboflow Universe",
+    sourceUrl: "https://universe.roboflow.com/search?q=fire+detection",
+    badge: "Object Detection",
+    desc: "Indoor and outdoor fire datasets covering flames, smoke and unusual ignition sources.",
+    format: "YOLOv8 / COCO",
+    size: "~3 GB",
+    images: "~10,000+",
+    classes: "2+ (fire, smoke)",
+    progress: 50,
+    progressColor: "var(--danger)",
+  },
 ];
 
 /* ── VIOLATION DATA ── */
@@ -444,6 +568,253 @@ function Sparkline({ color }) {
           style={{ height: `${h}px`, background: color || "var(--accent)", opacity: 0.35 }}
         />
       ))}
+    </div>
+  );
+}
+
+function ImageDiffPanel() {
+  const industryImages = [
+    {
+      id: "datacenter",
+      title: "Data center functional area",
+      src: heroImg,
+      description: "Server rack access, cable routing, and cooling aisle visibility.",
+      focus: ["Access control", "Cable management", "HVAC clearance"],
+    },
+    {
+      id: "manufacturing",
+      title: "Manufacturing floor operation",
+      src: "https://picsum.photos/seed/manufacturing-floor/640/360",
+      description: "Automated robotic cells, safety barriers, and material flow.",
+      focus: ["PPE compliance", "Guarding", "Emergency egress"],
+    },
+    {
+      id: "assembly",
+      title: "Industrial assembly zone",
+      src: "https://picsum.photos/seed/industrial-assembly/640/360",
+      description: "Workstation layout, hazard signage, and overhead infrastructure.",
+      focus: ["Signage visibility", "Trip hazard control", "Lockout status"],
+    },
+  ];
+
+  const [selectedImage, setSelectedImage] = useState(industryImages[0]);
+  const [analysis, setAnalysis] = useState(null);
+
+  const analyzeImage = (image) => {
+    if (image.id === "datacenter") {
+      return {
+        summary: "Data center operations appear orderly with strong rack access visibility, but cable management and cooling clearances need coded verification.",
+        issues: [
+          "Review NFPA 75 cable pathway separation.",
+          "Confirm UL-listed server rack grounding and bonding.",
+          "Validate aisle clearance meets NEC 110.26 requirements.",
+        ],
+        codes: ["NFPA 75", "NFPA 70 (NEC) 110.26", "IEEE 1100"],
+        recommendation: "Inspect rack power distribution units, labeled cable trays, and emergency exit signage.",
+      };
+    }
+    if (image.id === "manufacturing") {
+      return {
+        summary: "Manufacturing floor shows automated machinery and work cells, with critical hazard zones requiring PPE and lockout/tagout verification.",
+        issues: [
+          "Confirm OSHA machine guarding around robotic arms.",
+          "Verify ANSI Z535 safety signage for moving equipment.",
+          "Check emergency stop access and route clearance.",
+        ],
+        codes: ["OSHA 1910.212", "ANSI Z535", "NFPA 70E"],
+        recommendation: "Audit protective barriers, visible warning labels, and worker PPE enforcement at each cell.",
+      };
+    }
+    return {
+      summary: "Assembly area appears functional, but overhead service units and floor markings require code-specific review.",
+      issues: [
+        "Evaluate floor striping for pedestrian and equipment zones.",
+        "Confirm emergency signage is unobstructed.",
+        "Review overhead conduit support and fire protection clearances.",
+      ],
+      codes: ["OSHA 1910.22", "NFPA 70", "NFPA 101"],
+      recommendation: "Walk the zone to verify visual controls and emergency access paths against the applicable standard list.",
+    };
+  };
+
+  useEffect(() => {
+    setAnalysis(analyzeImage(selectedImage));
+  }, [selectedImage]);
+
+  return (
+    <div className="image-diff-panel lift">
+      <div className="image-diff-header">
+        <div>
+          <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 4 }}>INDUSTRY IMAGE ANALYSIS</div>
+          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em" }}>Working Area Analysis with Critical Code Checks</div>
+        </div>
+        <span className="image-diff-status">ASSESS</span>
+      </div>
+      <div className="image-diff-grid">
+        {industryImages.map((image) => (
+          <div
+            key={image.id}
+            className={`image-diff-card ${selectedImage.id === image.id ? "selected" : ""}`}
+            onClick={() => setSelectedImage(image)}
+          >
+            <img src={image.src} alt={image.title} />
+            <div className="image-diff-label">
+              <span>{image.title}</span>
+              <span className="image-diff-tag">WORK AREA</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="analysis-panel">
+        <div className="analysis-panel-header">
+          <div>
+            <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 4 }}>SELECTED AREA</div>
+            <div style={{ fontSize: 11, fontWeight: 700 }}>{selectedImage.title}</div>
+          </div>
+          <button className="btn active" onClick={() => setAnalysis(analyzeImage(selectedImage))}>RE-RUN CHECK</button>
+        </div>
+        <div style={{ fontSize: 10, color: "var(--fg)", lineHeight: 1.6, marginBottom: 10 }}>{selectedImage.description}</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div className="analysis-card">
+            <div className="analysis-card-title">Key findings</div>
+            <ul>
+              {analysis?.issues.map((issue, index) => (
+                <li key={index}>{issue}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="analysis-card">
+            <div className="analysis-card-title">Codes to verify</div>
+            <div className="analysis-tags">
+              {analysis?.codes.map((code) => (
+                <span key={code} className="analysis-pill">{code}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="analysis-footer">
+          <span>Recommendation</span>
+          <p>{analysis?.recommendation}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DatasetManager({ datasets }) {
+  const [activeTab, setActiveTab] = useState("all");
+  const [selectedId, setSelectedId] = useState(datasets[0]?.id || "");
+
+  const filteredDatasets =
+    activeTab === "all"
+      ? datasets
+      : datasets.filter((dataset) => dataset.category === activeTab);
+
+  useEffect(() => {
+    if (!filteredDatasets.some((dataset) => dataset.id === selectedId)) {
+      setSelectedId(filteredDatasets[0]?.id || datasets[0]?.id || "");
+    }
+  }, [activeTab, filteredDatasets, selectedId, datasets]);
+
+  const selectedDataset = datasets.find((dataset) => dataset.id === selectedId) || filteredDatasets[0] || datasets[0];
+
+  return (
+    <div className="dataset-manager lift">
+      <div className="dataset-manager-header">
+        <div>
+          <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 4 }}>DATASET MANAGER</div>
+          <div style={{ fontSize: 12, fontWeight: 700 }}>Surveillance Dataset Definitions</div>
+        </div>
+        <span className="image-diff-status">CONNECTED</span>
+      </div>
+
+      <div className="dataset-manager-tabs">
+        {[
+          { key: "all", label: "All" },
+          { key: "object", label: "Object" },
+          { key: "video", label: "Video" },
+          { key: "anomaly", label: "Anomaly" },
+          { key: "safety", label: "Safety" },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            className={`dataset-manager-tab ${activeTab === tab.key ? "active" : ""}`}
+            onClick={() => setActiveTab(tab.key)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="dataset-manager-grid">
+        {filteredDatasets.map((dataset) => (
+          <div
+            key={dataset.id}
+            className={`dataset-card ${selectedId === dataset.id ? "selected" : ""}`}
+            onClick={() => setSelectedId(dataset.id)}
+          >
+            <div className="dataset-card-header">
+              <div>
+                <div className="dataset-card-badge" style={{ background: `${dataset.progressColor}1a`, color: dataset.progressColor }}>
+                  {dataset.badge}
+                </div>
+                <h3>{dataset.name}</h3>
+              </div>
+              <div className="mono" style={{ fontSize: 9, color: "var(--muted)" }}>{dataset.images}</div>
+            </div>
+            <div className="dataset-card-body">
+              <div className="dataset-card-desc">{dataset.desc}</div>
+              <div className="dataset-card-meta">
+                <span>{dataset.format}</span>
+                <span>{dataset.size}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {selectedDataset && (
+        <div className="dataset-detail">
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+            <div>
+              <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 4 }}>SELECTED DATASET</div>
+              <div style={{ fontSize: 13, fontWeight: 700 }}>{selectedDataset.name}</div>
+              <div className="mono" style={{ fontSize: 10, color: "var(--muted)", marginTop: 4 }}>
+                {selectedDataset.source} · <a href={selectedDataset.sourceUrl} target="_blank" rel="noreferrer" style={{ color: "var(--accent)" }}>{new URL(selectedDataset.sourceUrl).hostname}</a>
+              </div>
+            </div>
+            <div style={{ minWidth: 120 }}>
+              <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 4 }}>PROGRESS</div>
+              <div className="progress-bar-wrap">
+                <div className="progress-bar-fill" style={{ width: `${selectedDataset.progress}%`, background: selectedDataset.progressColor }} />
+              </div>
+              <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginTop: 4 }}>
+                {selectedDataset.progress}% prepared
+              </div>
+            </div>
+          </div>
+
+          <div className="dataset-detail-grid">
+            <div>
+              <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 4 }}>CLASS LABELS</div>
+              <div style={{ fontSize: 11 }}>{selectedDataset.classes}</div>
+            </div>
+            <div>
+              <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 4 }}>DATA SIZE</div>
+              <div style={{ fontSize: 11 }}>{selectedDataset.size}</div>
+            </div>
+            <div>
+              <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 4 }}>FORMAT</div>
+              <div style={{ fontSize: 11 }}>{selectedDataset.format}</div>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+            <button className="btn active">OPEN DATASET</button>
+            <button className="btn">VIEW SOURCE</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1211,6 +1582,8 @@ export default function App() {
             })}
           </div>
 
+          <ImageDiffPanel />
+
           <PathToGreen violation={selected} />
         </section>
 
@@ -1244,6 +1617,8 @@ export default function App() {
               ))}
             </div>
           </div>
+
+          <DatasetManager datasets={DATASETS} />
 
           <AgentPanel />
         </aside>
