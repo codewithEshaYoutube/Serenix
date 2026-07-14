@@ -7,32 +7,37 @@ import {
   Flame, Crosshair, Swords, TreePine, Car, Shield, Zap
 } from "lucide-react";
 import "./serenix.css";
+import monitorMain from "./assets/target-data/monitor-main.jpg";
+import monitorFeed1 from "./assets/target-data/monitor-feed-1.jpg";
+import monitorFeed2 from "./assets/target-data/monitor-feed-2.jpg";
+import monitorFeed3 from "./assets/target-data/monitor-feed-3.jpg";
+import monitorFeed4 from "./assets/target-data/monitor-feed-4.jpg";
+import monitorFeed5 from "./assets/target-data/monitor-feed-5.jpg";
+import monitorFeed6 from "./assets/target-data/monitor-feed-6.jpg";
 
 /* ── TARGET DATA IMAGES ── */
-// ─── If using VITE (import.meta.glob) ───
-const targetImageModules = import.meta.glob("./assets/target-data/*.{jpg,jpeg,png,webp}", {
-  eager: true,
-  as: "url",
-});
-const targetImageList = Object.values(targetImageModules);
-
-// ─── If using CRA / Webpack (require.context) ───
-// Uncomment the 2 lines below and COMMENT OUT the 4 lines above:
-// const targetImageContext = require.context("./assets/target-data", false, /\.(jpg|jpeg|png|webp)$/);
-// const targetImageList = targetImageContext.keys().map(targetImageContext);
+const targetImageList = [
+  monitorMain,
+  monitorFeed1,
+  monitorFeed2,
+  monitorFeed3,
+  monitorFeed4,
+  monitorFeed5,
+  monitorFeed6,
+];
 
 const shuffledTargetImages = [...targetImageList].sort(() => Math.random() - 0.5);
 const heroMonitoringImages = shuffledTargetImages.slice(0, 3);
 
 /* ── CAMERA DATA ── */
 const cameraImageMap = {
-  "01": targetImageList[0],
-  "02": targetImageList[1],
-  "03": targetImageList[2],
-  "04": targetImageList[3],
-  "05": targetImageList[4],
-  "06": targetImageList[5],
-  "07": targetImageList[6],
+  "01": monitorMain,
+  "02": monitorFeed1,
+  "03": monitorFeed2,
+  "04": monitorFeed3,
+  "05": monitorFeed5,
+  "06": monitorFeed5,
+  "07": monitorFeed6,
 };
 
 const CAMERAS = [
