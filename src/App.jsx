@@ -7,7 +7,6 @@ import {
   Flame, Crosshair, Swords, TreePine, Car, Shield, Zap
 } from "lucide-react";
 import "./serenix.css";
-import heroImg from "./assets/hero.png";
 
 /* ── TARGET DATA IMAGES ── */
 // ─── If using VITE (import.meta.glob) ───
@@ -23,8 +22,19 @@ const targetImageList = Object.values(targetImageModules);
 // const targetImageList = targetImageContext.keys().map(targetImageContext);
 
 const shuffledTargetImages = [...targetImageList].sort(() => Math.random() - 0.5);
+const heroMonitoringImages = shuffledTargetImages.slice(0, 3);
 
 /* ── CAMERA DATA ── */
+const cameraImageMap = {
+  "01": targetImageList[0],
+  "02": targetImageList[1],
+  "03": targetImageList[2],
+  "04": targetImageList[3],
+  "05": targetImageList[4],
+  "06": targetImageList[5],
+  "07": targetImageList[6],
+};
+
 const CAMERAS = [
   {
     id: "01", label: "CONSTRUCT-A", seedImg: "sentry-construct",
@@ -590,25 +600,25 @@ function Sparkline({ color }) {
 function ImageDiffPanel() {
   const industryImages = [
     {
-      id: "datacenter",
-      title: "Data center functional area",
-      src: heroImg,
-      description: "Server rack access, cable routing, and cooling aisle visibility.",
-      focus: ["Access control", "Cable management", "HVAC clearance"],
+      id: "monitor-1",
+      title: "Live monitoring feed",
+      src: heroMonitoringImages[0] || targetImageList[0],
+      description: "Real-time surveillance imagery showing active workspace monitoring and hazard awareness.",
+      focus: ["Live coverage", "Asset visibility", "Event tracking"],
     },
     {
-      id: "manufacturing",
-      title: "Manufacturing floor operation",
-      src: "https://picsum.photos/seed/manufacturing-floor/640/360",
-      description: "Automated robotic cells, safety barriers, and material flow.",
-      focus: ["PPE compliance", "Guarding", "Emergency egress"],
+      id: "monitor-2",
+      title: "Site perimeter view",
+      src: heroMonitoringImages[1] || targetImageList[1],
+      description: "Operational overview of the monitored zone with clear situational awareness.",
+      focus: ["Perimeter awareness", "Entry checkpoints", "Safety oversight"],
     },
     {
-      id: "assembly",
-      title: "Industrial assembly zone",
-      src: "https://picsum.photos/seed/industrial-assembly/640/360",
-      description: "Workstation layout, hazard signage, and overhead infrastructure.",
-      focus: ["Signage visibility", "Trip hazard control", "Lockout status"],
+      id: "monitor-3",
+      title: "Monitoring zone overview",
+      src: heroMonitoringImages[2] || targetImageList[2],
+      description: "A broad monitoring scene for continuous site inspection and response support.",
+      focus: ["Area coverage", "Alert review", "Response readiness"],
     },
   ];
 
@@ -660,10 +670,10 @@ function ImageDiffPanel() {
     <div className="image-diff-panel lift">
       <div className="image-diff-header">
         <div>
-          <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 4 }}>INDUSTRY IMAGE ANALYSIS</div>
-          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em" }}>Working Area Analysis with Critical Code Checks</div>
+          <div className="mono" style={{ fontSize: 9, color: "var(--muted)", marginBottom: 4 }}>MONITORING HERO VIEW</div>
+          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em" }}>Monitoring Area Analysis with Live Site Awareness</div>
         </div>
-        <span className="image-diff-status">ASSESS</span>
+        <span className="image-diff-status">MONITOR</span>
       </div>
       <div className="image-diff-grid">
         {industryImages.map((image) => (
@@ -675,7 +685,7 @@ function ImageDiffPanel() {
             <img src={image.src} alt={image.title} />
             <div className="image-diff-label">
               <span>{image.title}</span>
-              <span className="image-diff-tag">WORK AREA</span>
+              <span className="image-diff-tag">MONITORING</span>
             </div>
           </div>
         ))}
@@ -864,7 +874,7 @@ function CameraCard({ cam }) {
       style={isCritical ? { borderColor: criticalColor } : {}}
     >
       <div className="camera-feed scanlines grid-overlay vignette">
-        <img src={`https://picsum.photos/seed/${cam.seedImg}/640/400`} alt="" />
+        <img src={cameraImageMap[cam.id] || targetImageList[0]} alt="" />
         <div
           className="scan-beam"
           style={{
