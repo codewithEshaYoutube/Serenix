@@ -2,7 +2,6 @@
 
 ### Privacy-Preserving AI for Safety Compliance Monitoring and Inspection
 
----
 
 ## Overview 
 
